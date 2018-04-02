@@ -1,0 +1,18 @@
+Server Mysql:
+
+#Criando o Container
+sudo docker run --detach --name=server-mysql --env="MYSQL_ROOT_PASSWORD=mypassword" mysql 
+
+#Comando para ver o IP do container:
+sudo docker inspect 
+
+#Comando para acessar o Banco:
+sudo mysql -h ipcontainer -u root -p -P 3306 
+
+#Comando para criar a base de dados:
+CREATE DATABASE notes;
+
+#Comando para criar a tabela na base de dados via console:
+sudo mysql -h IP_CONTAINER -u root -p -P 3306 notes < database_schema.sql
+
+

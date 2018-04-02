@@ -1,0 +1,139 @@
+Server Nodes.js
+
+#Rodando um container server-nodejs:
+sudo docker run --name server-nodejs -itd -p 80:8080 ubuntu
+
+#Update do container server-nodejs:
+sudo docker exec server-nodejs apt-get update
+
+#Instalando o node.js:
+sudo docker exec server-nodejs apt-get install nodejs -y
+
+#Checando a instalação e a versão do node.js:
+sudo docker exec server-nodejs nodejs -v
+
+#Todos os comandos acima foram realizadoa fora do container, agora vamos administrar o restante da instalação por dentro do mesmo, para isso execute o comando abaixo:
+sudo docker attach server-nodejs
+
+#Instalar o ferenciador de pacotes node.js
+apt-get install npm -y
+
+#Instalando um editor (poder qualquer um a sua escolha):
+apt-get install vim
+
+#Instale o pacote abaixo:
+apt-get install build-essential
+
+#Instale o framework Express e um pacote chamado body-parser para ajudar a lidar com as requisições JSON.
+npm install --save express body-parser
+
+#Digite o seguinte comando para instalar a extensão mysql, que permite usar Node com MySQL
+npm install -S mysql
+
+#Construção do arquivo packages.json
+npm init
+
+- Utilize o contúdo abaixo:
+
+{
+  "name": "notes-api",
+  "version": "1.0.0",
+  "description": "teste",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Passei Direto",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.15.0",
+    "restify": "^7.0.0",
+    "restify-errors": "^6.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.2"
+  }
+}
+
+
+# No arquivo server.js modifique para o conteúdo abaixo:
+var restify = require('restify');
+var errors = require('restify-errors');
+var mysql = require('mysql');
+
+var port = process.env.NODEJS_API_PORT;
+
+if (!port) {
+
+    port = 8080;
+
+}
+
+var connection = mysql.createConnection({
+
+        host: 'IP_SERVERMYSQL',
+        port: '3306',
+        user: 'root',
+        password: 'SENHA',
+        database : 'notes'
+});
+
+
+var server = restify.createServer();
+
+server.use(restify.plugins.bodyParser());
+
+// get all notes
+
+server.get('/notes', function (request, response, next) {
+        connection.query('select * from notes.Note order by Id desc', function (error, results, fields) {
+                if (error) { next(error); return; }
+                response.end(JSON.stringify(results));
+        });
+});
+
+// create note
+
+server.post('/notes', function (request, response, next) {
+        if(!request.body) { return next(new errors.BadRequestError("texto inválido")); }
+        connection.query('insert into notes.Note (Text) values ("?")', [request.body], function (error, results, fields) {
+                if (error) { next(error); return; }
+                response.end("Ok");
+        });
+});
+
+// delete note
+
+server.del('/notes/:id', function (request, response, next) {
+        var id = request.params.id;
+
+        if(!id || id <= 0) { return next(new errors.BadRequestError("id inválido")); }
+
+        connection.query('delete from notes.Note WHERE Id=?', [id], function (error, results, fields) {
+
+                if (error) { next(error); return; }
+
+                if(!results.affectedRows) { next(new errors.BadRequestError("id inválido")); return; }
+
+                response.end("Ok");
+        });
+});
+server.listen(PORTA_CONTAINER, 'IP_CONTAINER', function () {
+        console.log('%s listening at %s', server.name, server.url);
+});
+
+module.exports = server;
+
+#Execute o comando abaixo para instalar a api
+npm install
+
+#Instale o modulo restify
+npm install restify
+
+#Execute o comando abaixo para subir o server em segundo plano:
+nodejs server.js &
+
+
+
+
+

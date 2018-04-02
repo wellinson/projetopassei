@@ -1,0 +1,37 @@
+Server Nginx:
+
+#Rodando um container server-nginx na porta 80:
+sudo docker run --name server -itd -p 80:80 ubuntu
+
+#Update do container server-nginx:
+sudo docker exec server-nginx apt-get update
+
+#Instalando o nginx:
+sudo docker exec server-nginx apt-get install nginx -y
+
+#Checando a instalação e a versão do nginx:
+sudo docker exec server-nginx nginx -v
+
+#Iniciando o nginx:
+sudo docker exec server-nginx service nginx start
+
+#Todos os comandos acima foram realizadoa fora do container, agora vamos administrar o restante da instalação por dentro do mesmo, para isso execute o comando abaixo:
+sudo docker attach server-nginx
+
+#Instalando um editor (poder ser qualquer um a sua escolha):
+apt-get install vim
+
+#Crie um vhost proxy no diretorio /etc/sites-available/teste redirecionando para aplicação na porta 8080:
+
+vi /etc/sites-available/teste
+
+#Coloque o seguinte conteúdo abaixo:
+
+server {
+    listen              80;
+    server_name         localhost;
+
+    location / {
+        proxy_pass    http://IP_CONTAINER_NODEJS:8080/;
+     }
+}
