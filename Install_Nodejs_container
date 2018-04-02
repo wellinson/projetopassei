@@ -51,7 +51,7 @@ npm init
     "restify-errors": "^6.0.0"
   },
   "devDependencies": {
-    "nodemon": "^1.17.2"
+    "restify": "^7.1.0"
   }
 }
 
@@ -61,7 +61,7 @@ var restify = require('restify');
 var errors = require('restify-errors');
 var mysql = require('mysql');
 
-var port = process.env.NODEJS_API_PORT;
+var port = process.env.port || 8080;
 
 if (!port) {
 
@@ -118,7 +118,7 @@ server.del('/notes/:id', function (request, response, next) {
                 response.end("Ok");
         });
 });
-server.listen(PORTA_CONTAINER, 'IP_CONTAINER', function () {
+server.listen(port, 'IP_CONTAINER', function () {
         console.log('%s listening at %s', server.name, server.url);
 });
 
